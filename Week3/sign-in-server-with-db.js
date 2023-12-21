@@ -6,9 +6,11 @@ const app = express();
 
 app.use(express.json());
 
+const dbName = "learning";
+
 // connect to the database
 mongoose
-  .connect(process.env.MONGO_DB_URL)
+  .connect(process.env.MONGO_DB_URL + dbName)
   .then(() => console.log("Connected!"));
 
 // defining mongoose model
