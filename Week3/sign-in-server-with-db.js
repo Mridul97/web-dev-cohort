@@ -1,35 +1,38 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+require("dotenv").config();
 const app = express();
 
 app.use(express.json());
 
-const users = [
-  {
-    username: "Mridul",
-    password: "pass",
-  },
-  {
-    username: "Uma",
-    password: "pass",
-  },
-  {
-    username: "Prishny",
-    password: "pass",
-  },
-];
+// connect to the database
+mongoose
+  .connect(process.env.MONGO_DB_URL)
+  .then(() => console.log("Connected!"));
+
+// defining mongoose model
+/**
+ * The first argument is the singular name of the collection your model is for.
+ * Mongoose automatically looks for the plural version of your model name.
+ */
+const User = mongoose.model("User", {
+  username: String,
+  password: String,
+});
+// User will use the users collection, not the user collection.
 
 app.get("/", function (req, res) {
   res.send("Hello World!");
 });
 
-app.post("/sign-in", function (req, res) {
+app.post("/sign-in", async function (req, res) {
   const username = req.body.username;
   const password = req.body.password;
 
   // check if user exists
-  const user = users.find((user) => {
-    if (user["username"] == username) return user;
+  const user = await User.findOne({
+    username: username,
   });
 
   if (!user || user["password"] != password) {
@@ -49,7 +52,7 @@ app.post("/sign-in", function (req, res) {
   });
 });
 
-app.get("/users", function (req, res) {
+app.get("/users", async function (req, res) {
   // check if the request is authenticated
   try {
     const token = req.headers["authorization"];
@@ -57,12 +60,18 @@ app.get("/users", function (req, res) {
   } catch (err) {
     console.log(err);
     res.sendStatus(403);
+    return;
   }
+
+  const users = await User.find({});
   const usernames = users.map((user) => {
     return user["username"];
   });
+  const requiredUsernames = usernames.filter((username) => {
+    return !(username == decoded["username"]);
+  });
 
-  res.json(usernames);
+  res.json(requiredUsernames);
 });
 
 app.listen(3000, () => {
