@@ -1,0 +1,32 @@
+<!-- For adding items dynamically to the web page, we use DOM manipulation -->
+<html>
+    <body>
+        <script>
+            /*
+                Here we are not sending calls to backend, but for real world use-cases, we would want
+                to send the calls to backend.
+                And to ensure that we are not sending unnecessary backend calls, we use debouncing.
+                In debouncing, instead of sending the request immediately after the user types, we wait
+                for 0.5s to see if user is still typing. 
+            */
+            let timeoutId;
+            function debounceCalculateSum(){
+                clearTimeout(timeoutId)
+                timeoutId = setTimeout(calculateSum, 500);
+            }
+            function calculateSum(){
+                const number1 = document.getElementById("number1").value;
+                const number2 = document.getElementById("number2").value;
+                const sum = parseInt(number1) + parseInt(number2);
+                const resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = sum;
+            }
+        </script>
+        <div>
+            <input oninput="debounceCalculateSum()" id="number1" placeholder="number1"/><br/>
+            <input oninput="debounceCalculateSum()" id="number2" placeholder="number2"/><br/>
+            <!-- <button onclick="calculateSum()">Calculate Sum</button> -->
+            <div id="result"></div>
+        </div>
+    </body>
+</html>

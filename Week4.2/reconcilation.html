@@ -1,0 +1,64 @@
+<!-- Reconcilation -->
+<!-- We want to show all the Todos from a list there is no feature of 
+    adding Todos -->
+<!-- When the List gets updated, the DOM should automatically update - Reconcilation -->
+<!-- This way is not very effecient as we are clearing the container div and 
+  re-rendering all the list items again -->
+<!-- We should calculate diff with the old state, and then add, remove or update list
+  items accordingly, this is what React does -->
+<html>
+  <body>
+    <div id="container"></div>
+    <script>
+      let testNo = 2;
+      function markItDone(id) {
+        document.getElementById("Todo-" + id).children[2].innerHTML = "Done!";
+      }
+      function createTodo(title, description, id) {
+        const parentDiv = document.createElement("div");
+        const firstChild = document.createElement("div");
+        firstChild.innerHTML = title;
+        const secondChild = document.createElement("div");
+        secondChild.innerHTML = description;
+        const thirdChild = document.createElement("button");
+        thirdChild.innerHTML = "Mark it done!";
+        thirdChild.setAttribute("onclick", `markItDone(${id})`);
+        parentDiv.appendChild(firstChild);
+        parentDiv.appendChild(secondChild);
+        parentDiv.appendChild(thirdChild);
+        parentDiv.setAttribute("id", "Todo-" + id);
+        return parentDiv;
+      }
+      const todoList = [
+        {
+          "title": "todo1",
+          "description": "This is Todo1",
+          "id": 0
+        },
+        {
+          "title": "todo2",
+          "description": "This is Todo2",
+          "id": 1
+        }
+      ]
+      setInterval(() => {
+        todoList.push({
+            "title": "test" + testNo,
+            "description": "ReconcilationTest",
+            "id": testNo
+        });
+        testNo++;
+        updateDOM();
+      }, 5000);
+      function updateDOM(){
+        const containerDiv = document.getElementById("container");
+        containerDiv.innerHTML = "";
+        for(let i = 0; i < todoList.length; i++){
+          const element = createTodo(todoList[i]["title"], todoList[i]["description"], todoList[i]["id"]);
+          containerDiv.appendChild(element);
+        }
+      }
+      updateDOM();
+    </script>
+  </body>
+</html>
