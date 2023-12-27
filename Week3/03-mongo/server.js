@@ -34,6 +34,7 @@ const Course = mongoose.model("Course", {
 const User = mongoose.model("User", {
   username: String,
   password: String,
+  purchasedCourses: Array,
 });
 
 // Creates a new admin account
@@ -172,6 +173,89 @@ app.post("/users/signup", async (req, res) => {
   await newUser.save();
   res.json({
     message: "User created successfully",
+  });
+});
+
+// Get the courses
+app.get("/users/courses", async (req, res) => {
+  console.log(req.headers);
+  const username = req.headers["username"];
+  const password = req.headers["password"];
+
+  const user = await User.findOne({
+    username,
+    password,
+  });
+
+  if (!user) {
+    res.status(403).json({
+      msg: "Incorrect User Credentials!",
+    });
+    return;
+  }
+
+  const courses = await Course.find({});
+  console.log(courses);
+  res.json(courses);
+});
+
+// Purchasing a course
+app.post("/users/courses/:courseId", async (req, res) => {
+  const username = req.headers["username"];
+  const password = req.headers["password"];
+
+  const user = await User.findOne({
+    username,
+    password,
+  });
+
+  if (!user) {
+    res.status(403).json({
+      msg: "Incorrect User Credentials!",
+    });
+    return;
+  }
+
+  const courseId = req.params["courseId"];
+  if (user.purchasedCourses) {
+    user.purchasedCourses.push(courseId);
+  } else {
+    user["purchasedCourses"] = [courseId];
+  }
+
+  await user.save();
+  res.json({
+    message: "Course purchased successfully",
+  });
+});
+
+// Lists all the courses purchased by the user
+app.get("/users/purchasedCourses", async (req, res) => {
+  const username = req.headers["username"];
+  const password = req.headers["password"];
+
+  const user = await User.findOne({
+    username,
+    password,
+  });
+
+  if (!user) {
+    res.status(403).json({
+      msg: "Incorrect User Credentials!",
+    });
+    return;
+  }
+
+  if (!user["purchasedCourses"]) {
+    res.json({
+      purchasedCourses: [],
+    });
+    return;
+  }
+
+  const purchasedCourses = await getCourses(user["purchasedCourses"]);
+  res.json({
+    purchasedCourses: purchasedCourses,
   });
 });
 
