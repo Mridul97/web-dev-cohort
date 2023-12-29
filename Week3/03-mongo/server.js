@@ -195,7 +195,6 @@ app.get("/users/courses", async (req, res) => {
   }
 
   const courses = await Course.find({});
-  console.log(courses);
   res.json(courses);
 });
 
